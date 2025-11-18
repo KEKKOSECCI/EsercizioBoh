@@ -8,9 +8,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Main {
+    public static String[] zone = {"a","b","c","d"};
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(3000);
-        do {
+        String pin = "05057";
+        boolean allarme =false;
             System.out.println("stiamo cercando un Client");
             Socket clientSocket = serverSocket.accept();
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -20,10 +22,57 @@ public class Main {
             do {
                 String get = in.readLine();
                 String[] getAr = get.split("_");
-                System.out.println(getAr[0]);
-                System.out.println(getAr[1]);
-                System.out.println(getAr[2]);
+                if(!getAr[0].equals("05057")||controlloValidità(getAr[1]) < 0){
+                    out.println("ERROR");
+                }else if(controlloValidità(getAr[1]) !=2){
+                    if(controlloPresenza(getAr[2]))
+                    {
+                        out.println("ERROR");
+                    }
+                }else if(controlloValidità(getAr[1])== 0){
+                    int flag = statusGroup(getAr[2]);
+                    if(flag == 0)
+                    out.println("ALREADY");
+                    else if(flag == 1)
+                    out.println("ON");
+                    
+                }
             } while (true);
-        } while (true);
+    }
+    public static boolean controlloPresenza(String a){
+        for(String n : zone){
+            if(n.equalsIgnoreCase(a)){
+                return true;
+            }
+        }
+        return false;
+    }
+    public static int controlloValidità(String a){
+        switch (a) {
+            case "g":
+                return 0;
+            case "STATUS":
+                return 1;
+            case "DIS":
+                return 2;
+            default:
+                return -1;
+        }
+    }
+    public static void delAll(){
+        for(String n : zone){
+            n = n.toLowerCase();
+        }
+    }
+    public static int statusGroup(String a){
+        for(String n : zone){
+            if(n.equals(a)){
+                return 0;
+            }else if(n.equalsIgnoreCase(a)){
+                n = n.toUpperCase();
+                return 1;
+            }
+        }
+        return -1;//errore ma si controlla prima quindi impossibile;
     }
 }
